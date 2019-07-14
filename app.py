@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from collections import Counter
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request
+from nltk.corpus import stopwords
 from stop_words import stops
 
 import nltk
@@ -21,7 +22,7 @@ from models import Result
 
 
 @app.route('/', methods=["GET", "POST"])
-def hello():
+def index():
     errors = []
     results = {}
 
@@ -39,8 +40,11 @@ def hello():
             # Text processing
             raw = BeautifulSoup(req.text, "html.parser").get_text()
             nltk.data.path.append("./nltk_data/")
+
             tokens = nltk.word_tokenize(raw)
             text = nltk.Text(tokens)
+
+            english_stopwords = set(stopwords.words('english'))
 
             # Remove punctuation, count raw words.
             nonPunct = re.compile(".*[A-Za-z].*")
@@ -48,7 +52,9 @@ def hello():
             raw_word_count = Counter(raw_words)
 
             # Stop words
-            no_stop_words = [word for word in raw_words if word.lower() not in stops]
+            no_stop_words = [word for word in raw_words
+                                  if word.lower() not in english_stopwords
+                            ]
             no_stop_words_count = Counter(no_stop_words)
 
             print(f"Stop words: {no_stop_words_count}")
