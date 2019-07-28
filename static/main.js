@@ -57,6 +57,29 @@
 						});
 				};
 			}
-		]);
+		])
+		.directive("wordCountChart", ["$parse", ($parse) => {
+			return {
+				restrict: 'E',
+				replace: true,
+				template: "<div id='chart'></div>",
+				link: (scope) => {
+					scope.$watch("wordcounts", () =>{
+						d3.select("#chart").selectAll('*').remove();
+						const data = scope.wordcounts;
+						for(let word in data){
+							d3.select("#chart")
+							  .append("div")
+							  .selectAll("div")
+							  .data(word[0])
+							  .enter()
+							  .append("div")
+							  .style("width", () => (data[word][1] * 5) + "px")
+							  .text((key) => data[key][0]);
+						}
+					}, true);
+				}
+			};
+		}]);
 	}()
 );
